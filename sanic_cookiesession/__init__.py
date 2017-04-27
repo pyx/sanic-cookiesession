@@ -2,7 +2,7 @@
 import logging
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 
-__version__ = '0.1.0.dev0'
+__version__ = '0.1.0'
 
 log = logging.getLogger(__name__)
 
