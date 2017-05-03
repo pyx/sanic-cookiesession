@@ -45,6 +45,10 @@ Full Example
 Changelog
 =========
 
+- 0.2.0
+
+  API changed: changed setup function's name
+
 - 0.1.0
 
   First public release.
