@@ -8,7 +8,7 @@ app = Sanic('test_app')
 app.config['SESSION_COOKIE_SECRET_KEY'] = "u can't c me"
 app.config['SESSION_COOKIE_SECURE'] = False
 
-sanic_cookiesession.init_app(app)
+sanic_cookiesession.setup(app)
 
 
 def render(session):

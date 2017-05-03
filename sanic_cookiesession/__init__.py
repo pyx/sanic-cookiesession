@@ -4,10 +4,12 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature
 
 __version__ = '0.2.0.dev0'
 
+__all__ = ['setup']
+
 log = logging.getLogger(__name__)
 
 
-def init_app(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
+def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
     """Setup cookie-based session for :code:`Sanic` application"""
     secret_key = app.config.get('SESSION_COOKIE_SECRET_KEY')
     if not secret_key:

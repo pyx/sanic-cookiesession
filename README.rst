@@ -37,7 +37,7 @@ How to use it
   app = Sanic(__name__)
   app.config['SESSION_COOKIE_SECRET_KEY'] = 'abcd'
 
-  sanic_cookiesession.init_app(app)
+  sanic_cookiesession.setup(app)
 
   @app.route('/')
   def index(request):

@@ -8,9 +8,8 @@ import sanic_cookiesession
 def test_session():
     app = Sanic('test_app')
     app.config['SESSION_COOKIE_SECRET_KEY'] = "u can't c me"
-    # app.config['SESSION_COOKIE_DOMAIN'] = 'http://127.0.0.1:42101'
 
-    sanic_cookiesession.init_app(app)
+    sanic_cookiesession.setup(app)
 
     @app.get('/inc')
     async def inc(request):
@@ -65,7 +64,7 @@ def test_cookies_tempered():
     app = Sanic('test_app')
     app.config['SESSION_COOKIE_SECRET_KEY'] = "not this time"
 
-    sanic_cookiesession.init_app(app)
+    sanic_cookiesession.setup(app)
 
     @app.get('/')
     async def index(request):
@@ -113,7 +112,7 @@ def test_session_cookie_domain():
     app.config['SESSION_COOKIE_SECRET_KEY'] = "u can't c me"
     app.config['SESSION_COOKIE_DOMAIN'] = '.example.com'
 
-    sanic_cookiesession.init_app(app)
+    sanic_cookiesession.setup(app)
 
     @app.get('/')
     async def index(request):
@@ -140,7 +139,7 @@ def test_not_overwrite_existing_session():
     async def add_session(request):
         request['session'] = this_is_the_session
 
-    sanic_cookiesession.init_app(app)
+    sanic_cookiesession.setup(app)
 
     @app.get('/')
     async def index(request):
@@ -167,7 +166,7 @@ def test_delete_session_in_request_will_create_new_object():
             hit_count += 1
             super().__init__(*args, **kwargs)
 
-    sanic_cookiesession.init_app(app, session_type=Session)
+    sanic_cookiesession.setup(app, session_type=Session)
 
     @app.get('/')
     async def index(request):
@@ -192,4 +191,4 @@ def test_secret_key_required():
 
     with pytest.raises(RuntimeError):
         # no secret key
-        sanic_cookiesession.init_app(app)
+        sanic_cookiesession.setup(app)
