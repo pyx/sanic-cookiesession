@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from itsdangerous import URLSafeTimedSerializer, BadSignature
+from .utils import SessionDict
 
 __version__ = '0.3.0.dev0'
 
@@ -9,7 +10,7 @@ __all__ = ['setup']
 log = logging.getLogger(__name__)
 
 
-def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
+def setup(app, session_type=SessionDict, serializer_type=URLSafeTimedSerializer):
     """Setup cookie-based session for :code:`Sanic` application"""
     secret_key = app.config.get('SESSION_COOKIE_SECRET_KEY')
     if not secret_key:
@@ -36,7 +37,7 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
         session_cookie = request.cookies.get(cookie_name)
         if session_cookie:
             try:
-                session = serializer.loads(session_cookie, max_age=max_age)
+                session = session_type(serializer.loads(session_cookie, max_age=max_age))
             except BadSignature as ex:
                 log.warning('%s - %s', ex, ex.payload)
                 session = session_type()
@@ -47,11 +48,13 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
     @app.middleware('response')
     async def save_session(request, response):
         session = request.get(session_name)
-        if session is None:
-            session = request[session_name] = session_type()
-        response.cookies[cookie_name] = serializer.dumps(session)
-        if domain:
-            response.cookies[cookie_name]['domain'] = domain
-        response.cookies[cookie_name]['httponly'] = httponly
-        response.cookies[cookie_name]['max-age'] = max_age
-        response.cookies[cookie_name]['secure'] = secure
+        if session.modified:
+            if not session:
+                del response.cookies[cookie_name]
+            else:
+                response.cookies[cookie_name] = serializer.dumps(session)
+                if domain:
+                    response.cookies[cookie_name]['domain'] = domain
+                response.cookies[cookie_name]['httponly'] = httponly
+                response.cookies[cookie_name]['max-age'] = max_age
+                response.cookies[cookie_name]['secure'] = secure
