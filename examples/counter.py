@@ -18,24 +18,24 @@ def render(session):
 
 @app.get('/')
 async def index(request):
-    return render(request['session'])
+    return render(request.ctx.session)
 
 
 @app.get('/inc')
 async def inc(request):
-    request['session']['counter'] += 1
+    request.ctx.session['counter'] += 1
     return response.redirect('/')
 
 
 @app.get('/dec')
 async def dec(request):
-    request['session']['counter'] -= 1
+    request.ctx.session['counter'] -= 1
     return response.redirect('/')
 
 
 @app.middleware('request')
 async def create_counter(request):
-    request['session'].setdefault('counter', 0)
+    request.ctx.session.setdefault('counter', 0)
 
 
 if __name__ == '__main__':
