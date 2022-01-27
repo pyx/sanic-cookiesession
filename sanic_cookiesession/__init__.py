@@ -31,7 +31,7 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
 
     @app.middleware('request')
     async def load_session(request):
-        if session_name in request:
+        if hasattr(request.ctx, session_name):
             return
         session_cookie = request.cookies.get(cookie_name)
         if session_cookie:
@@ -42,13 +42,13 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
                 session = session_type()
         else:
             session = session_type()
-        request[session_name] = session
+        setattr(request.ctx, session_name, session)
 
     @app.middleware('response')
     async def save_session(request, response):
-        session = request.get(session_name)
+        session = getattr(request.ctx, session_name, None)
         if session is None:
-            session = request[session_name] = session_type()
+            setattr(request.ctx, session_name, session := session_type())
         response.cookies[cookie_name] = serializer.dumps(session)
         if domain:
             response.cookies[cookie_name]['domain'] = domain
