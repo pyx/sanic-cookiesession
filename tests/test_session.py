@@ -13,20 +13,20 @@ def test_session():
 
     @app.get('/inc')
     async def inc(request):
-        session = request['session']
+        session = request.ctx.session
         value = session['counter'] = session.get('counter', 0) + 1
-        return response.text(value)
+        return response.text(str(value))
 
     @app.get('/dec')
     async def dec(request):
-        session = request['session']
+        session = request.ctx.session
         value = session['counter'] = session.get('counter', 0) - 1
-        return response.text(value)
+        return response.text(str(value))
 
     @app.get('/zero')
     async def zero(request):
-        value = request['session']['counter'] = 0
-        return response.text(value)
+        value = request.ctx.session['counter'] = 0
+        return response.text(str(value))
 
     req, resp = app.test_client.get('/zero')
     assert resp.status == 200
@@ -68,7 +68,7 @@ def test_cookies_tempered():
 
     @app.get('/')
     async def index(request):
-        session = request['session']
+        session = request.ctx.session
         first_time = not session.get('visited')
         if first_time:
             session['visited'] = True
@@ -116,8 +116,8 @@ def test_session_cookie_domain():
 
     @app.get('/')
     async def index(request):
-        value = request['session']['counter'] = 0
-        return response.text(value)
+        value = request.ctx.session['counter'] = 0
+        return response.text(str(value))
 
     req, resp = app.test_client.get('/')
     assert resp.status == 200
@@ -137,14 +137,14 @@ def test_not_overwrite_existing_session():
     # add session object before Sanic-CookieSession
     @app.middleware('request')
     async def add_session(request):
-        request['session'] = this_is_the_session
+        request.ctx.session = this_is_the_session
 
     sanic_cookiesession.setup(app)
 
     @app.get('/')
     async def index(request):
-        assert this_is_the_session is request['session']
-        request['session']['name'] = 'penny'
+        assert this_is_the_session is request.ctx.session
+        request.ctx.session['name'] = 'penny'
         return response.text('')
 
     # hit
@@ -174,7 +174,7 @@ def test_delete_session_in_request_will_create_new_object():
         assert hit_count == 1
         # then delete it, response middleware will create a new one to be
         # saved in the cookie-based session storage
-        del request['session']
+        del request.ctx.session
         return response.text('')
 
     # hit
