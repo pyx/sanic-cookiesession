@@ -41,7 +41,7 @@ How to use it
 
   @app.route('/')
   def index(request):
-      session = request['session']
+      session = request.ctx.session
       session.setdefault('c', 0)
       session['c'] += 1
       return response.text(session['c'])
