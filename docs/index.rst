@@ -45,6 +45,10 @@ Full Example
 Changelog
 =========
 
+- 0.3.0
+
+  New release for latest Sanic (currently 23.6)
+
 - 0.2.0
 
   API changed: changed setup function's name
