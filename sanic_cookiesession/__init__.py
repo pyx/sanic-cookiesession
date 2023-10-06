@@ -29,7 +29,7 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
 
     serializer = serializer_type(secret_key, salt=salt)
 
-    @app.middleware('request')
+    @app.on_request
     async def load_session(request):
         if hasattr(request.ctx, session_name):
             return
@@ -44,14 +44,17 @@ def setup(app, session_type=dict, serializer_type=URLSafeTimedSerializer):
             session = session_type()
         setattr(request.ctx, session_name, session)
 
-    @app.middleware('response')
+    @app.on_response
     async def save_session(request, response):
         session = getattr(request.ctx, session_name, None)
         if session is None:
             setattr(request.ctx, session_name, session := session_type())
-        response.cookies[cookie_name] = serializer.dumps(session)
+        kwargs = {
+            "httponly": httponly,
+            "max_age": max_age,
+            "secure": secure
+        }
         if domain:
-            response.cookies[cookie_name]['domain'] = domain
-        response.cookies[cookie_name]['httponly'] = httponly
-        response.cookies[cookie_name]['max-age'] = max_age
-        response.cookies[cookie_name]['secure'] = secure
+            kwargs["domain"] = domain
+
+        response.add_cookie(cookie_name, serializer.dumps(session), **kwargs)
