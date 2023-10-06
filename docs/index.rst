@@ -45,7 +45,7 @@ Full Example
 Changelog
 =========
 
-- 0.3.0
+- 0.3.1
 
   New release for latest Sanic (currently 23.6)
 
